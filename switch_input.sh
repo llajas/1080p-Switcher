@@ -24,11 +24,13 @@ fi
 # Check for read command output
 if [[ $SWITCH_COMMAND == "read" ]]; then
   echo "Reading status..."
-  if echo -e "$SWITCH_COMMAND\r" | nc -w 2 $IP_ADDRESS 4999 ; then
-    echo "Command sent"
-    sleep 1
-    echo "" | nc -w 2 $IP_ADDRESS 4999
-    echo "Reading done"
+  if echo -e "$SWITCH_COMMAND\r" | nc -w 2 -z $IP_ADDRESS 4999 > /dev/null 2>&1; then
+    if echo -e "$SWITCH_COMMAND\r" | nc -w 2 $IP_ADDRESS 4999 ; then
+      echo "Reading done"
+    else
+      echo "Error: Failed to execute read command."
+      exit 1
+    fi
   else
     echo "Error: Failed to connect to device."
     exit 1
@@ -36,8 +38,13 @@ if [[ $SWITCH_COMMAND == "read" ]]; then
 else
   # Send switch command to converter
   echo "Sent command: $SWITCH_COMMAND"
-  if echo -e "$SWITCH_COMMAND\r" | nc -w 2 $IP_ADDRESS 4999 ; then
-    echo "Command sent"
+  if echo -e "$SWITCH_COMMAND\r" | nc -w 2 -z $IP_ADDRESS 4999 > /dev/null 2>&1; then
+    if echo -e "$SWITCH_COMMAND\r" | nc -w 2 $IP_ADDRESS 4999 ; then
+      echo "Command sent"
+    else
+      echo "Error: Failed to execute switch command."
+      exit 1
+    fi
   else
     echo "Error: Failed to connect to device."
     exit 1
